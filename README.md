@@ -6,7 +6,7 @@ $\[
 Y \approx E A B
 \]$
 
-<img width="1600" height="900" alt="REGAIN model overview" src="https://github.com/llzzhh0512/REGAIN/blob/main/docs/model.svg" />
+<img width="1600" height="900" alt="REGAIN model overview" src="[https://github.com/llzzhh0512/REGAIN/blob/main/docs/model.svg](https://github.com/llzzhh0512/REGAIN/blob/main/docs/REGAIN_Fig1a_functional_clustering.svg)" />
 
 This repository is a **GitHub release package** extracted from the full analysis project. It includes model code, key scripts, and dataset documentation only — large matrices, fragments, and checkpoints are not included.
 
@@ -96,9 +96,9 @@ bash scripts/run_impute.sh
 | Field | Meaning |
 |------|------|
 | `adata.X` | Imputed relative accessibility scores (float16; **can be negative**) |
-| `adata.obsm['latent']` | Cell embeddings \(B^\top\) |
-| `adata.varm['topic']` | Region embeddings \(EA\) |
-| `adata.uns['ALS_A']` | Factor \(A\) |
+| `adata.obsm['latent']` | Cell embeddings $\(H^\top\)$ |
+| `adata.varm['topic']` | Region embeddings $\(EW\)$ |
+| `adata.uns['ALS_A']` | Factor $\(W\)$ |
 
 For unseen-peak extrapolation: `E_test @ ALS_A @ latent.T`.
 
@@ -106,7 +106,7 @@ For unseen-peak extrapolation: `E_test @ ALS_A @ latent.T`.
 
 ## Citation and prior source
 
-- This method: **REGAIN** (fixed \(E\) + ALS low-rank reconstruction)
+- This method: **REGAIN** (fixed $\(E\)$ + ALS low-rank reconstruction)
 - Region embeddings come from ChromBERT pretrained artifacts (published ChromBERT is primarily pretrained on regulatory-factor ChIP-seq co-association)
 
 ---
