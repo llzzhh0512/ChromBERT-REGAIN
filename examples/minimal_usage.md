@@ -45,7 +45,7 @@ A = ad.uns["ALS_A"]
 ## 消融（real / random / shuffled E）
 
 ```bash
-python chrombert_scai/impute_als_ablation.py \
+python regain/impute_als_ablation.py \
   --input data/peaks_indexed.h5ad \
   --output output/ablation_shuffled.h5ad \
   --emb_dir $EMB_DIR \

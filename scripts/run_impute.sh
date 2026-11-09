@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ChromBERT-scAI imputation example
+# REGAIN imputation example
 # Edit paths below before running.
 
 set -euo pipefail
@@ -11,7 +11,7 @@ EMB_DIR="${EMB_DIR:-/path/to/atac_embs_dim.zarr}"
 
 mkdir -p "$(dirname "$OUTPUT")"
 
-python -u "${ROOT}/chrombert_scai/impute_als.py" \
+python -u "${ROOT}/regain/impute_als.py" \
   --input "${INPUT}" \
   --output "${OUTPUT}" \
   --emb_dir "${EMB_DIR}" \

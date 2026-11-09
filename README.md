@@ -1,4 +1,4 @@
-# ChromBERT-scAI
+# REGAIN
 
 稀疏 scATAC-seq 可及性矩阵插补：用固定的 ChromBERT 区域表征 $\(E\)$ 约束低秩重建
 
@@ -6,7 +6,7 @@ $\[
 Y \approx E A B
 \]$
 
-<img width="1600" height="900" alt="image" src="https://github.com/llzzhh0512/ChromBERT-scAI/blob/main/docs/model.svg" />
+<img width="1600" height="900" alt="image" src="https://github.com/llzzhh0512/REGAIN/blob/main/docs/model.svg" />
 
 本目录是从完整分析工程中整理出的 **GitHub 发布包**，只包含模型代码、关键脚本与数据集说明，不含大型矩阵 / fragments / checkpoint。
 
@@ -16,11 +16,11 @@ Y \approx E A B
 ## 目录结构
 
 ```
-ChromBERT-scAI_github/
+REGAIN/
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
-├── chrombert_scai/          # 核心模型
+├── regain/          # 核心模型
 │   ├── impute_als.py        # 生产版 ALS（推荐）
 │   ├── impute_als_ablation.py  # real / random / shuffled E 消融
 │   └── impute_ridge.py      # 早期同 E 的 ridge 对照
@@ -48,8 +48,8 @@ ChromBERT-scAI_github/
 ### 1. 环境
 
 ```bash
-conda create -n chrombert_scai python=3.10 -y
-conda activate chrombert_scai
+conda create -n regain python=3.10 -y
+conda activate regain
 pip install -r requirements.txt
 # 另需 bedtools（peak 索引映射）
 ```
@@ -71,7 +71,7 @@ Bin BED（已随仓库提供）：
 ### 3. 运行插补
 
 ```bash
-python -u chrombert_scai/impute_als.py \
+python -u regain/impute_als.py \
   --input  data/10XPBMC.h5ad \
   --output output/10XPBMC_imputed_ALS.h5ad \
   --emb_dir /path/to/atac_embs_dim.zarr \
@@ -106,7 +106,7 @@ bash scripts/run_impute.sh
 
 ## 引用与先验来源
 
-- 本方法：ChromBERT-scAI（固定 E + ALS 低秩重建）
+- 本方法：REGAIN（固定 E + ALS 低秩重建）
 - 区域表征来自 ChromBERT 预训练产物（已发表 ChromBERT 主要基于调控因子 ChIP-seq 共关联预训练）
 
 ---
