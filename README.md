@@ -2,9 +2,9 @@
 
 Sparse scATAC-seq accessibility imputation with a fixed ChromBERT region embedding \(E\) that constrains low-rank reconstruction:
 
-\[
+$\[
 Y \approx E A B
-\]
+\]$
 
 <img width="1600" height="900" alt="REGAIN model overview" src="https://github.com/llzzhh0512/REGAIN/blob/main/docs/model.svg" />
 
