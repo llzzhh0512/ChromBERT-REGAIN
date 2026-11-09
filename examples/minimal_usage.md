@@ -1,15 +1,15 @@
-# 最小使用示例
+# Minimal usage example
 
-## 前置
+## Prerequisites
 
-1. 安装 `requirements.txt` 与 `bedtools`
-2. 准备 ChromBERT embedding zarr（见 `docs/embedding.md`）
-3. 准备基因组 bin BED，放入 `annotations/`
+1. Install packages from `requirements.txt` and install `bedtools`
+2. Prepare a ChromBERT embedding zarr (see `docs/embedding.md`)
+3. Place the genomic bin BED files under `annotations/`
 
-## 步骤
+## Steps
 
 ```bash
-# 1) 给 peak 矩阵写 varm['indices']
+# 1) Write varm['indices'] for the peak matrix
 # hg38:
 BIN_BED=annotations/hg38_6k_1kb_region.bed
 # mm10:
@@ -21,17 +21,17 @@ python scripts/prepare_peak_indices.py \
   --output data/peaks_indexed.h5ad \
   --drop-unmapped
 
-# 2) ALS 插补
+# 2) ALS imputation
 export EMB_DIR=/path/to/atac_embs_dim.zarr
 export INPUT=data/peaks_indexed.h5ad
 export OUTPUT=output/peaks_imputed_ALS.h5ad
 bash scripts/run_impute.sh
 
-# 3) （可选）聚类指标；需 obs['cell_type']
-# 按 scripts/evaluate_clustering.py 的 CLI 参数调用
+# 3) (Optional) clustering metrics; requires obs['cell_type']
+# Call scripts/evaluate_clustering.py with its CLI arguments
 ```
 
-## 读取结果
+## Load results
 
 ```python
 import scanpy as sc
@@ -42,7 +42,7 @@ Z = ad.varm["topic"]
 A = ad.uns["ALS_A"]
 ```
 
-## 消融（real / random / shuffled E）
+## Ablation (real / random / shuffled E)
 
 ```bash
 python regain/impute_als_ablation.py \

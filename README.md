@@ -1,40 +1,39 @@
 # REGAIN
 
-稀疏 scATAC-seq 可及性矩阵插补：用固定的 ChromBERT 区域表征 $\(E\)$ 约束低秩重建
+Sparse scATAC-seq accessibility imputation with a fixed ChromBERT region embedding \(E\) that constrains low-rank reconstruction:
 
-$\[
+\[
 Y \approx E A B
-\]$
+\]
 
-<img width="1600" height="900" alt="image" src="https://github.com/llzzhh0512/REGAIN/blob/main/docs/model.svg" />
+<img width="1600" height="900" alt="REGAIN model overview" src="https://github.com/llzzhh0512/REGAIN/blob/main/docs/model.svg" />
 
-本目录是从完整分析工程中整理出的 **GitHub 发布包**，只包含模型代码、关键脚本与数据集说明，不含大型矩阵 / fragments / checkpoint。
-
+This repository is a **GitHub release package** extracted from the full analysis project. It includes model code, key scripts, and dataset documentation only — large matrices, fragments, and checkpoints are not included.
 
 ---
 
-## 目录结构
+## Repository layout
 
 ```
 REGAIN/
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
-├── regain/          # 核心模型
-│   ├── impute_als.py        # 生产版 ALS（推荐）
-│   ├── impute_als_ablation.py  # real / random / shuffled E 消融
-│   └── impute_ridge.py      # 早期同 E 的 ridge 对照
+├── regain/                 # core model
+│   ├── impute_als.py       # production ALS (recommended)
+│   ├── impute_als_ablation.py  # real / random / shuffled E ablation
+│   └── impute_ridge.py     # earlier ridge baseline with the same E
 ├── scripts/
-│   ├── run_impute.sh        # 命令行示例
+│   ├── run_impute.sh       # CLI example
 │   ├── prepare_peak_indices.py  # peak → ChromBERT bin index
-│   └── evaluate_clustering.py   # ARI/NMI 等聚类评估
+│   └── evaluate_clustering.py   # ARI/NMI and related metrics
 ├── configs/
 │   └── default_impute.yaml
 ├── docs/
-│   ├── model.md             # 模型公式与实现细节
-│   ├── datasets.md          # 使用的数据集与获取方式
-│   └── embedding.md         # E (zarr) 说明
-├── annotations/             # ChromBERT bin BED（hg38 / mm10）
+│   ├── model.md            # model equations and implementation notes
+│   ├── datasets.md         # datasets and how to obtain them
+│   └── embedding.md        # E (zarr) description
+├── annotations/            # ChromBERT bin BEDs (hg38 / mm10)
 │   ├── hg38_6k_1kb_region.bed
 │   └── mm10_5k_1kb_region.bed
 └── examples/
@@ -43,32 +42,33 @@ REGAIN/
 
 ---
 
-## 快速开始
+## Quick start
 
-### 1. 环境
+### 1. Environment
 
 ```bash
 conda create -n regain python=3.10 -y
 conda activate regain
 pip install -r requirements.txt
-# 另需 bedtools（peak 索引映射）
+# Also requires bedtools (for peak index mapping)
 ```
 
-### 2. 输入要求
+### 2. Input requirements
 
-输入 `.h5ad`（cell × peak）需包含：
+Input `.h5ad` (cells × peaks) should contain:
 
-- `adata.X`：稀疏/稠密 peak 计数（或二值）
-- `adata.varm['indices']`：每个 peak 对应 ChromBERT 基因组 bin 的整数下标  
-  （用 `scripts/prepare_peak_indices.py` 生成）
+- `adata.X`: sparse/dense peak counts (or binary)
+- `adata.varm['indices']`: integer ChromBERT genomic-bin index for each peak  
+  (generate with `scripts/prepare_peak_indices.py`)
 
-Bin BED（已随仓库提供）：
+Bin BEDs (shipped with this repo):
 
 - hg38: `annotations/hg38_6k_1kb_region.bed`
 - mm10: `annotations/mm10_5k_1kb_region.bed`
 
-另需 ChromBERT 区域 embedding 的 zarr 目录（含 `full` 或 `PCA/<dim>`）。
-### 3. 运行插补
+You also need a ChromBERT region-embedding zarr directory (with `full` or `PCA/<dim>`).
+
+### 3. Run imputation
 
 ```bash
 python -u regain/impute_als.py \
@@ -85,28 +85,28 @@ python -u regain/impute_als.py \
   --seed 42
 ```
 
-或编辑后运行：
+Or edit and run:
 
 ```bash
 bash scripts/run_impute.sh
 ```
 
-### 4. 输出字段
+### 4. Output fields
 
-| 字段 | 含义 |
+| Field | Meaning |
 |------|------|
-| `adata.X` | 插补后的相对可及性分数（float16；**可为负**） |
-| `adata.obsm['latent']` | 细胞表征 $\(B^\top\)$ |
-| `adata.varm['topic']` | 区域表征 $\(EA\)$ |
-| `adata.uns['ALS_A']` | 因子 $\(A\)$ |
+| `adata.X` | Imputed relative accessibility scores (float16; **can be negative**) |
+| `adata.obsm['latent']` | Cell embeddings \(B^\top\) |
+| `adata.varm['topic']` | Region embeddings \(EA\) |
+| `adata.uns['ALS_A']` | Factor \(A\) |
 
-对未见峰外推：`E_test @ ALS_A @ latent.T`。
+For unseen-peak extrapolation: `E_test @ ALS_A @ latent.T`.
 
 ---
 
-## 引用与先验来源
+## Citation and prior source
 
-- 本方法：REGAIN（固定 E + ALS 低秩重建）
-- 区域表征来自 ChromBERT 预训练产物（已发表 ChromBERT 主要基于调控因子 ChIP-seq 共关联预训练）
+- This method: **REGAIN** (fixed \(E\) + ALS low-rank reconstruction)
+- Region embeddings come from ChromBERT pretrained artifacts (published ChromBERT is primarily pretrained on regulatory-factor ChIP-seq co-association)
 
 ---
