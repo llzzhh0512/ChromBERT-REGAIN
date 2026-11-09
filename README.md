@@ -6,7 +6,7 @@ $\[
 Y \approx E A B
 \]$
 
-<img width="1600" height="900" alt="REGAIN model overview" src="[https://github.com/llzzhh0512/REGAIN/blob/main/docs/model.svg](https://github.com/llzzhh0512/REGAIN/blob/main/docs/REGAIN_Fig1a_functional_clustering.svg)" />
+<img width="1600" height="900" alt="REGAIN model overview" src="https://github.com/llzzhh0512/REGAIN/blob/main/docs/REGAIN_Fig1a_functional_clustering.svg" />
 
 This repository is a **GitHub release package** extracted from the full analysis project. It includes model code, key scripts, and dataset documentation only — large matrices, fragments, and checkpoints are not included.
 
