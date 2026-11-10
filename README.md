@@ -2,15 +2,11 @@
 
 Sparse scATAC-seq accessibility imputation with a fixed ChromBERT region embedding \(E\) that constrains low-rank reconstruction:
 
-$\[
+\[
 Y \approx E A B
-\]$
+\]
 
-<<<<<<< HEAD
-<img width="1600" height="900" alt="REGAIN model overview" src="https://github.com/llzzhh0512/REGAIN/blob/main/docs/REGAIN_Fig1a_functional_clustering.svg" />
-=======
-<img width="1600" height="900" alt="ChromBERT-REGAIN model overview" src="https://github.com/llzzhh0512/ChromBERT-REGAIN/blob/main/docs/model.svg" />
->>>>>>> Rename project branding to ChromBERT-REGAIN.
+<img width="1600" height="900" alt="ChromBERT-REGAIN model overview" src="https://github.com/llzzhh0512/ChromBERT-REGAIN/blob/main/docs/REGAIN_Fig1a_functional_clustering.svg" />
 
 This repository is a **GitHub release package** extracted from the full analysis project. It includes model code, key scripts, and dataset documentation only — large matrices, fragments, and checkpoints are not included.
 
@@ -100,9 +96,9 @@ bash scripts/run_impute.sh
 | Field | Meaning |
 |------|------|
 | `adata.X` | Imputed relative accessibility scores (float16; **can be negative**) |
-| `adata.obsm['latent']` | Cell embeddings $\(H^\top\)$ |
-| `adata.varm['topic']` | Region embeddings $\(EW\)$ |
-| `adata.uns['ALS_A']` | Factor $\(W\)$ |
+| `adata.obsm['latent']` | Cell embeddings \(H^\top\) |
+| `adata.varm['topic']` | Region embeddings \(EW\) |
+| `adata.uns['ALS_A']` | Factor \(W\) |
 
 For unseen-peak extrapolation: `E_test @ ALS_A @ latent.T`.
 
@@ -110,11 +106,7 @@ For unseen-peak extrapolation: `E_test @ ALS_A @ latent.T`.
 
 ## Citation and prior source
 
-<<<<<<< HEAD
-- This method: **REGAIN** (fixed $\(E\)$ + ALS low-rank reconstruction)
-=======
 - This method: **ChromBERT-REGAIN** (fixed \(E\) + ALS low-rank reconstruction)
->>>>>>> Rename project branding to ChromBERT-REGAIN.
 - Region embeddings come from ChromBERT pretrained artifacts (published ChromBERT is primarily pretrained on regulatory-factor ChIP-seq co-association)
 
 ---
