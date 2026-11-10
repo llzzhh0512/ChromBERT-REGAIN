@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# REGAIN imputation example
+# ChromBERT-REGAIN imputation example
 # Edit paths below before running.
 
 set -euo pipefail
