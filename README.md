@@ -3,7 +3,7 @@
 Sparse **scATAC-seq** accessibility imputation with a **fixed ChromBERT region embedding** $\(E\)$:
 
 $\[
-Y \approx E A B
+Y \approx E W H
 \]$
 
 This repository ships the **core method** (ALS imputation), peak→bin indexing, and a **tiny demo** that runs without downloading the full genome-wide embedding.
