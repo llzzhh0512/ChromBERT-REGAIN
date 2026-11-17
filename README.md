@@ -9,7 +9,7 @@ Y \approx E A B
 This repository ships the **core method** (ALS imputation), peak→bin indexing, and a **tiny demo** that runs without downloading the full genome-wide embedding.
 
 > Paper figure reproduction is out of scope here. Use this repo to impute your own peak × cell matrix.
-
+<img width="1600" height="900" alt="ChromBERT-REGAIN model overview" src="https://github.com/llzzhh0512/ChromBERT-REGAIN/blob/main/docs/ChromBERT-REGAIN_Fig1a.pdf" />
 ---
 
 ## Repository layout
