@@ -1,10 +1,10 @@
 # ChromBERT-REGAIN
 
-Sparse **scATAC-seq** accessibility imputation with a **fixed ChromBERT region embedding** \(E\):
+Sparse **scATAC-seq** accessibility imputation with a **fixed ChromBERT region embedding** $\(E\)$:
 
-\[
+$\[
 Y \approx E A B
-\]
+\]$
 
 This repository ships the **core method** (ALS imputation), peak→bin indexing, and a **tiny demo** that runs without downloading the full genome-wide embedding.
 
@@ -67,15 +67,15 @@ Output: `examples/demo/output/demo_imputed.h5ad`
 | Field | Meaning |
 |-------|---------|
 | `adata.X` | Imputed relative accessibility (float16; **can be negative**) |
-| `adata.obsm['latent']` | Cell factors \(B^\top\) |
-| `adata.varm['topic']` | Peak factors \(EA\) |
-| `adata.uns['ALS_A']` | Factor \(A\) |
+| `adata.obsm['latent']` | Cell factors $\(H^\top\)$ |
+| `adata.varm['topic']` | Peak factors $\(EW\)$ |
+| `adata.uns['ALS_A']` | Factor $\(W\)$ |
 
 Details: [`examples/demo/README.md`](examples/demo/README.md).
 
 ---
 
-## 3. Full workflow (your data + genome-wide \(E\))
+## 3. Full workflow (your data + genome-wide $\(E\)$)
 
 ### 3.1 Download ChromBERT region embeddings
 
@@ -184,7 +184,7 @@ More notes: [`docs/model.md`](docs/model.md) · [`examples/minimal_usage.md`](ex
 
 ## Citation
 
-- **ChromBERT-REGAIN** — fixed region embedding \(E\) + ALS low-rank reconstruction for scATAC-seq imputation  
+- **ChromBERT-REGAIN** — fixed region embedding $\(E\)$ + ALS low-rank reconstruction for scATAC-seq imputation  
 - Region embeddings are ChromBERT pretrained artifacts (regulatory-factor ChIP-seq co-association; not a sequence-only LM)
 
 ---
