@@ -7,3 +7,5 @@ scikit-learn>=1.2
 zarr>=2.14
 pyyaml>=6.0
 matplotlib>=3.6
+# optional: only needed for scripts/download_embeddings.sh
+huggingface_hub>=0.20

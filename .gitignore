@@ -1,6 +1,8 @@
 # large data / local paths
-data/
+data/*
+!data/README.md
 output/
+embeddings/
 *.h5ad
 *.h5mu
 *.npy
@@ -11,6 +13,15 @@ output/
 fragments*.tsv*
 *.zarr/
 !docs/embedding_zarr_meta/
+
+# ship tiny demo artifacts; still ignore demo run output
+!examples/
+!examples/demo/
+!examples/demo/**
+examples/demo/output/
+!examples/demo/demo_peaks.h5ad
+!examples/demo/demo_emb.zarr/
+!examples/demo/demo_emb.zarr/**
 
 # keep ChromBERT bin BEDs tracked; ignore other large annotation dumps
 annotations/*

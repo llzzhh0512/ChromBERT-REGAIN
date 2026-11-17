@@ -64,12 +64,19 @@
 
 ---
 
-## 上传 GitHub 时建议放什么
+## GitHub 发布包里放什么
 
 | 放入仓库 | 不要放入 |
 |----------|----------|
-| 本包代码与 docs | `*.h5ad` / fragments / BAM / FASTQ |
-| 小型 BED 定义（若 < 数 MB 且许可允许） | 完整 ChromBERT zarr |
-| `configs/` 与示例命令 | 私有绝对路径日志 |
+| 核心代码与 docs | 原始 fragments / BAM / FASTQ |
+| `annotations/*.bed` | 全基因组 ChromBERT zarr（~GB） |
+| `examples/demo/` 迷你 h5ad + mini emb | 完整基准 `.h5ad` |
+| `configs/` 与示例脚本 | 私有绝对路径日志 |
 
-可在 `data/README.md` 写下载脚本指针，用 Git LFS 仅当必要时托管中等大小的示例矩阵。
+全量 embedding 请从 Hugging Face 下载：
+
+https://huggingface.co/datasets/llzzhh0512/ChromBERT-REGAIN
+
+```bash
+bash scripts/download_embeddings.sh
+```

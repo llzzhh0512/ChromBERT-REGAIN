@@ -1,34 +1,42 @@
-# Minimal usage example
+# Minimal usage (full-scale data)
+
+For a **no-download smoke-test**, prefer [`demo/README.md`](demo/README.md).
+
+This page covers running on **your** peak matrix with the **genome-wide** ChromBERT embedding from Hugging Face.
 
 ## Prerequisites
 
-1. Install packages from `requirements.txt` and install `bedtools`
-2. Prepare a ChromBERT embedding zarr (see `docs/embedding.md`)
-3. Place the genomic bin BED files under `annotations/`
+1. `pip install -r requirements.txt`
+2. `bedtools` on `PATH` (peak indexing only)
+3. Embedding from https://huggingface.co/datasets/llzzhh0512/ChromBERT-REGAIN
+
+```bash
+bash scripts/download_embeddings.sh
+# → embeddings/atac_embs_dim.zarr
+```
 
 ## Steps
 
 ```bash
-# 1) Write varm['indices'] for the peak matrix
-# hg38:
-BIN_BED=annotations/hg38_6k_1kb_region.bed
-# mm10:
-# BIN_BED=annotations/mm10_5k_1kb_region.bed
+# 0) from repo root
+cd ChromBERT-REGAIN
+conda activate regain
 
+# 1) Map peaks → ChromBERT bins (hg38)
 python scripts/prepare_peak_indices.py \
-  --input data/raw_peaks.h5ad \
-  --bins "$BIN_BED" \
+  --input  data/raw_peaks.h5ad \
+  --bins   annotations/hg38_6k_1kb_region.bed \
   --output data/peaks_indexed.h5ad \
   --drop-unmapped
 
 # 2) ALS imputation
-export EMB_DIR=/path/to/atac_embs_dim.zarr
+export EMB_DIR=embeddings/atac_embs_dim.zarr
 export INPUT=data/peaks_indexed.h5ad
 export OUTPUT=output/peaks_imputed_ALS.h5ad
 bash scripts/run_impute.sh
 
-# 3) (Optional) clustering metrics; requires obs['cell_type']
-# Call scripts/evaluate_clustering.py with its CLI arguments
+# 3) Optional clustering metrics (needs obs['cell_type'])
+# python scripts/evaluate_clustering.py --help
 ```
 
 ## Load results
@@ -36,19 +44,19 @@ bash scripts/run_impute.sh
 ```python
 import scanpy as sc
 ad = sc.read_h5ad("output/peaks_imputed_ALS.h5ad")
-X = ad.X            # imputed scores
+X = ad.X            # imputed scores (may be negative)
 B = ad.obsm["latent"]
 Z = ad.varm["topic"]
 A = ad.uns["ALS_A"]
 ```
 
-## Ablation (real / random / shuffled E)
+## Ablation (real / random / shuffled \(E\))
 
 ```bash
 python regain/impute_als_ablation.py \
   --input data/peaks_indexed.h5ad \
   --output output/ablation_shuffled.h5ad \
-  --emb_dir $EMB_DIR \
+  --emb_dir embeddings/atac_embs_dim.zarr \
   --emb_dim 768 \
   --emb_mode shuffled \
   --emb_ablation_seed 42 \
