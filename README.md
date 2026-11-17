@@ -75,7 +75,7 @@ Details: [`examples/demo/README.md`](examples/demo/README.md).
 
 ---
 
-## 3. Full workflow (your data + genome-wide $\(E\)$)
+## 3. Full workflow (your data + genome-wide E)
 
 ### 3.1 Download ChromBERT region embeddings
 
