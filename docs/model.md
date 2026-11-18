@@ -68,7 +68,6 @@ For a strict hold-out, test-peak rows must not enter training $Y$, $E^\top E$, T
 |------|------|
 | `impute_als.py` | Production ALS |
 | `impute_als_ablation.py` | `--emb_mode {real,random,shuffled}` |
-| `impute_ridge.py` | Early $Y \approx E W$ ridge baseline (not the main path) |
 
 ## Default hyperparameters (benchmarks)
 
