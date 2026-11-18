@@ -1,6 +1,8 @@
 # ChromBERT-REGAIN
 
-Sparse **scATAC-seq** accessibility imputation with a **fixed ChromBERT region embedding** $\(E\)$:
+<img width="1600" height="900" alt="ChromBERT-REGAIN model overview" src="https://github.com/llzzhh0512/ChromBERT-REGAIN/blob/main/docs/ChromBERT-REGAIN_Fig1a.svg" />
+
+Sparse **scATAC-seq** accessibility imputation with a **fixed ChromBERT region embedding** $E$:
 
 $\[
 Y \approx E W H
@@ -9,7 +11,7 @@ Y \approx E W H
 This repository ships the **core method** (ALS imputation), peak→bin indexing, and a **tiny demo** that runs without downloading the full genome-wide embedding.
 
 > Paper figure reproduction is out of scope here. Use this repo to impute your own peak × cell matrix.
-<img width="1600" height="900" alt="ChromBERT-REGAIN model overview" src="https://github.com/llzzhh0512/ChromBERT-REGAIN/blob/main/docs/ChromBERT-REGAIN_Fig1a.svg" />
+
 ---
 
 ## Repository layout
@@ -18,8 +20,7 @@ This repository ships the **core method** (ALS imputation), peak→bin indexing,
 ChromBERT-REGAIN/
 ├── regain/                      # core model
 │   ├── impute_als.py            # production ALS (recommended)
-│   ├── impute_als_ablation.py   # real / random / shuffled E
-│   └── impute_ridge.py          # earlier ridge baseline
+│   └── impute_als_ablation.py   # real / random / shuffled E
 ├── scripts/
 │   ├── run_impute.sh
 │   ├── download_embeddings.sh   # Hugging Face → local zarr
@@ -31,9 +32,9 @@ ChromBERT-REGAIN/
 │   ├── demo/                    # tiny offline smoke-test (recommended first run)
 │   └── minimal_usage.md         # full-data workflow
 └── docs/
+    ├── ChromBERT-REGAIN_Fig1a.svg
     ├── model.md
-    ├── embedding.md
-    └── datasets.md
+    └── embedding.md
 ```
 
 ---
@@ -67,15 +68,15 @@ Output: `examples/demo/output/demo_imputed.h5ad`
 | Field | Meaning |
 |-------|---------|
 | `adata.X` | Imputed relative accessibility (float16; **can be negative**) |
-| `adata.obsm['latent']` | Cell factors $\(H^\top\)$ |
-| `adata.varm['topic']` | Peak factors $\(EW\)$ |
-| `adata.uns['ALS_A']` | Factor $\(W\)$ |
+| `adata.obsm['latent']` | Cell factors $H^\top$ (cells × $K$) |
+| `adata.varm['topic']` | Peak factors $Z = E W$ (peaks × $K$) |
+| `adata.uns['ALS_A']` | Factor $W$ ($L$ × $K$) |
 
 Details: [`examples/demo/README.md`](examples/demo/README.md).
 
 ---
 
-## 3. Full workflow (your data + genome-wide E)
+## 3. Full workflow (your data + genome-wide $E$)
 
 ### 3.1 Download ChromBERT region embeddings
 
@@ -88,9 +89,10 @@ Currently published:
 | File | Genome | Notes |
 |------|--------|--------|
 | `atac_embs_dim.tar` | hg38 | ~9.5 GB; extract to `atac_embs_dim.zarr/` |
+| `atac_embs_dim_mm10.tar` | mm10 | ~4.5 GB; extract to `atac_embs_dim_mm10.zarr/` |
 
 ```bash
-# downloads into ./embeddings/ (override with DEST=...)
+# downloads both into ./embeddings/ (override with DEST=... or GENOME=hg38|mm10)
 bash scripts/download_embeddings.sh
 ```
 
@@ -98,11 +100,17 @@ Or manually:
 
 ```bash
 pip install -U "huggingface_hub[cli]"
+# hg38
 huggingface-cli download llzzhh0512/ChromBERT-REGAIN atac_embs_dim.tar \
   --repo-type dataset --local-dir embeddings
 mkdir -p embeddings/atac_embs_dim.zarr
 tar -xf embeddings/atac_embs_dim.tar -C embeddings/atac_embs_dim.zarr
-# expect: embeddings/atac_embs_dim.zarr/full  (and optional PCA/)
+# mm10
+huggingface-cli download llzzhh0512/ChromBERT-REGAIN atac_embs_dim_mm10.tar \
+  --repo-type dataset --local-dir embeddings
+mkdir -p embeddings/atac_embs_dim_mm10.zarr
+tar -xf embeddings/atac_embs_dim_mm10.tar -C embeddings/atac_embs_dim_mm10.zarr
+# expect: embeddings/atac_embs_dim*.zarr/full  (and optional PCA/)
 ```
 
 See [`docs/embedding.md`](docs/embedding.md) for array layout (`full` = 768-d; optional `PCA/<dim>`).
@@ -134,7 +142,8 @@ Peak names must be parseable as `chr:start-end` (e.g. `chr1:100-200`).
 ### 3.3 Run imputation
 
 ```bash
-export EMB_DIR=embeddings/atac_embs_dim.zarr   # extracted HF archive
+export EMB_DIR=embeddings/atac_embs_dim.zarr   # extracted HF archive (hg38)
+# export EMB_DIR=embeddings/atac_embs_dim_mm10.zarr   # mm10
 export INPUT=data/peaks_indexed.h5ad
 export OUTPUT=output/peaks_imputed_ALS.h5ad
 
@@ -166,16 +175,16 @@ Default hyperparameters match the main benchmarks (`configs/default_impute.yaml`
 import scanpy as sc
 ad = sc.read_h5ad("output/peaks_imputed_ALS.h5ad")
 X = ad.X                 # imputed scores
-B = ad.obsm["latent"]    # cells × K
-Z = ad.varm["topic"]     # peaks × K
-A = ad.uns["ALS_A"]      # L × K
+H = ad.obsm["latent"]    # cells × K  (H^T in Y ≈ E W H)
+Z = ad.varm["topic"]     # peaks × K  (= E W)
+W = ad.uns["ALS_A"]      # L × K
 ```
 
 Unseen-peak extrapolation (after fitting on training peaks):
 
 ```python
 # E_test: (P_test, L) rows from the same ChromBERT zarr
-imputed_test = (E_test @ A @ B.T).T   # cells × test_peaks
+imputed_test = (E_test @ W @ H.T).T   # cells × test_peaks
 ```
 
 More notes: [`docs/model.md`](docs/model.md) · [`examples/minimal_usage.md`](examples/minimal_usage.md).
@@ -184,7 +193,7 @@ More notes: [`docs/model.md`](docs/model.md) · [`examples/minimal_usage.md`](ex
 
 ## Citation
 
-- **ChromBERT-REGAIN** — fixed region embedding $\(E\)$ + ALS low-rank reconstruction for scATAC-seq imputation  
+- **ChromBERT-REGAIN** — fixed region embedding $E$ + ALS low-rank reconstruction for scATAC-seq imputation  
 - Region embeddings are ChromBERT pretrained artifacts (regulatory-factor ChIP-seq co-association; not a sequence-only LM)
 
 ---

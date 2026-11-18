@@ -1,4 +1,4 @@
-# ChromBERT region embedding \(E\)
+# ChromBERT region embedding $E$
 
 ## Where to download (recommended)
 
@@ -9,16 +9,20 @@ Genome-wide embeddings are published on Hugging Face:
 | Artifact | Genome | Approx. size | Local name after extract |
 |----------|--------|--------------|--------------------------|
 | `atac_embs_dim.tar` | hg38 | ~9.5 GB | `atac_embs_dim.zarr/` |
+| `atac_embs_dim_mm10.tar` | mm10 | ~4.5 GB | `atac_embs_dim_mm10.zarr/` |
 
 ```bash
-# from repo root
+# from repo root (downloads both by default)
 bash scripts/download_embeddings.sh
 # → embeddings/atac_embs_dim.zarr/full
+# → embeddings/atac_embs_dim_mm10.zarr/full
+
+# or one genome only:
+GENOME=hg38 bash scripts/download_embeddings.sh
+GENOME=mm10 bash scripts/download_embeddings.sh
 ```
 
 For a **tiny offline smoke-test** that does **not** need this download, use `examples/demo/` (mini zarr already bundled).
-
-Mouse (`atac_embs_dim_mm10.zarr`) will be listed on the same HF dataset page when published.
 
 ## Array layout
 

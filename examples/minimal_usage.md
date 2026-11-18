@@ -12,7 +12,9 @@ This page covers running on **your** peak matrix with the **genome-wide** ChromB
 
 ```bash
 bash scripts/download_embeddings.sh
-# → embeddings/atac_embs_dim.zarr
+# → embeddings/atac_embs_dim.zarr        (hg38)
+# → embeddings/atac_embs_dim_mm10.zarr   (mm10)
+# GENOME=hg38|mm10 to download one genome only
 ```
 
 ## Steps
@@ -44,13 +46,13 @@ bash scripts/run_impute.sh
 ```python
 import scanpy as sc
 ad = sc.read_h5ad("output/peaks_imputed_ALS.h5ad")
-X = ad.X            # imputed scores (may be negative)
-B = ad.obsm["latent"]
-Z = ad.varm["topic"]
-A = ad.uns["ALS_A"]
+X = ad.X                 # imputed scores (may be negative)
+H = ad.obsm["latent"]    # cells × K  (= H^T in Y ≈ E W H)
+Z = ad.varm["topic"]     # peaks × K  (= E W)
+W = ad.uns["ALS_A"]      # L × K
 ```
 
-## Ablation (real / random / shuffled \(E\))
+## Ablation (real / random / shuffled embedding $E$)
 
 ```bash
 python regain/impute_als_ablation.py \

@@ -1,59 +1,75 @@
-# 模型结构与实现
+# Model structure and implementation
 
-## 目标
+## Objective
 
-对 peak × cell 目标矩阵 \(Y\)（通常为二值化后的 TF-IDF）：
+For a peak × cell target matrix $Y$ (typically binarized then TF-IDF):
 
-\[
-Y \approx E A B,\quad
-Z = E A\ (\text{peak latent}),\quad
-B\ (\text{cell latent})
-\]
+$\[
+Y \approx E W H,\quad
+Z = E W\ (\text{peak latent}),\quad
+H\ (\text{cell latent})
+\]$
 
-- \(E \in \mathbb{R}^{P\times L}\)：固定 ChromBERT 区域表征（不训练）
-- \(A \in \mathbb{R}^{L\times K}\)：可训练
-- \(B \in \mathbb{R}^{K\times C}\)：可训练
-- 正则：\(\lambda_A\|A\|_F^2 + \lambda_B\|B\|_F^2\)
+Matrix shapes:
 
-## \(Y\) 构造（`impute_als.py`）
+$\[
+E \in \mathbb{R}^{P \times L},\quad
+W \in \mathbb{R}^{L \times K},\quad
+H \in \mathbb{R}^{K \times C}
+\]$
 
-1. 读入 h5ad → 转置为 peak × cell
-2. 可选 `--binary`：`(X > 0)`
-3. `sklearn.TfidfTransformer(smooth_idf=False, norm='l2')`，并对 `idf_ -= 1`
+- $E$: fixed ChromBERT region embedding (not trained)
+- $W$, $H$: trainable factors
+- Regularization: $\lambda_W \|W\|_F^2 + \lambda_H \|H\|_F^2$
 
-## ALS 更新
+> Legacy code names: `ALS_A` ≡ $W$, `obsm['latent']` ≡ $H^\top$, CLI flags `--lambdaA` / `--lambdaB`.
 
-预计算 \(G_E = E^\top E\)，\(G_Y = E^\top Y\)：
+## Constructing $Y$ (`impute_als.py`)
 
-- **A 步**：解 \(G_E A (BB^\top) + \lambda_A A = G_Y B^\top\)（矩阵共轭梯度）
-- **B 步**：解 \((A^\top G_E A + \lambda_B I) B = A^\top G_Y\)
+1. Load h5ad → transpose to peak × cell
+2. Optional `--binary`: `(X > 0)`
+3. `sklearn.TfidfTransformer(smooth_idf=False, norm='l2')`, then `idf_ -= 1`
 
-默认固定迭代次数，无早停。初始化：\(A\sim\mathcal{N}(0,1)\times 0.02\)，再闭式求 \(B\)。
+## ALS updates
 
-## 输出注意
+Precompute $G_E = E^\top E$ and $G_Y = E^\top Y$:
 
-- 预测 **无非负约束**（clip 代码默认注释掉），分数可为负
-- 这是相对 / TF-IDF-like accessibility，**不是** fragment counts，也未经概率校准
-- 下游若 `log1p`，需先处理负值
+$\[
+G_E W (H H^\top) + \lambda_W W = G_Y H^\top
+\quad\text{(W-step; matrix CG)}
+\]$
 
-## 外推未见峰
+$\[
+(W^\top G_E W + \lambda_H I)\, H = W^\top G_Y
+\quad\text{(H-step)}
+\]$
 
-仅用训练峰拟合得到 `ALS_A` 与 `latent`（\(B^\top\)）后：
+Fixed iteration count by default (no early stopping). Initialize $W \sim \mathcal{N}(0,1)\times 0.02$, then solve for $H$ in closed form.
+
+## Output notes
+
+- Predictions are **not** non-negativity constrained (clipping is commented out by default) and **can be negative**
+- Scores are relative / TF-IDF-like accessibility — **not** fragment counts, and not probability-calibrated
+- If applying `log1p` downstream, handle negatives first
+
+## Extrapolating to unseen peaks
+
+After fitting on training peaks (`ALS_A` ≡ $W$, `latent` ≡ $H^\top`):
 
 ```python
-imputed_test = (E_test @ A @ B.T).T   # cells × test_peaks
+imputed_test = (E_test @ W @ H.T).T   # cells × test_peaks
 ```
 
-严格留出要求：测试峰行不得进入训练时的 \(Y\)、\(E^\top E\)、TF-IDF 与 loss。
+For a strict hold-out, test-peak rows must not enter training $Y$, $E^\top E$, TF-IDF, or the loss.
 
-## 对照实现
+## Related implementations
 
-| 文件 | 作用 |
+| File | Role |
 |------|------|
-| `impute_als.py` | 生产 ALS |
+| `impute_als.py` | Production ALS |
 | `impute_als_ablation.py` | `--emb_mode {real,random,shuffled}` |
-| `impute_ridge.py` | 早期 \(Y\approx E W\) ridge（非主路径） |
+| `impute_ridge.py` | Early $Y \approx E W$ ridge baseline (not the main path) |
 
-## 常用超参（基准实验）
+## Default hyperparameters (benchmarks)
 
 `emb_dim=768, topics=128, lambdaA=1, lambdaB=0.1, als_iters=20, cg_iters=500, binary`
