@@ -47,7 +47,7 @@ cd ChromBERT-REGAIN
 
 conda create -n regain python=3.10 -y
 conda activate regain
-pip install -r requirements.txt
+pip install -r requirements.txt --only-binary=:all:
 
 # needed only when mapping peaks → ChromBERT bins on your own data
 conda install -c bioconda bedtools -y   # or: sudo apt install bedtools
